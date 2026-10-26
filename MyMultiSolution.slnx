@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="BackgroundChannelWorker/BackgroundChannelWorker.csproj" />
+  <Project Path="libs/ParallelTaskQueDS/ParallelTaskQueDS.csproj" />
+  <Project Path="WebApi/WebApi.csproj" />
+  <Project Path="libs/Models/Models.csproj" />
+  
+</Solution>

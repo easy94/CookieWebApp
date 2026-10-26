@@ -1,0 +1,11 @@
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/bin/Debug/net10.0/ParallelTaskQueDS.deps.json
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/bin/Debug/net10.0/ParallelTaskQueDS.dll
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/bin/Debug/net10.0/ParallelTaskQueDS.pdb
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.GeneratedMSBuildEditorConfig.editorconfig
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.AssemblyInfoInputs.cache
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.AssemblyInfo.cs
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.csproj.CoreCompileInputs.cache
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.dll
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/refint/ParallelTaskQueDS.dll
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.pdb
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ref/ParallelTaskQueDS.dll

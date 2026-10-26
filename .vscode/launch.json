@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "BackgroundChannelWorkerDebug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/BackgroundChannelWorker/BackgroundChannelWorker.csproj"
+        },
+        {
+            "name": "WebApiDebug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/WebApi/WebApi.csproj"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Run Both",
+            "configurations": ["BackgroundChannelWorkerDebug","WebApiDebug"]
+        }
+    ]   
+}

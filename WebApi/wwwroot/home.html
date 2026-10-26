@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
+
+  <!--
+    This CSS styles the welcome page.
+    It centers the content and gives the card a clean white look.
+  -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: grid;
+      place-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.2rem;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    This is the main content on the home page.
+    The card sits in the middle of the screen and shows the welcome message.
+  -->
+  <div class="card">
+    <h1 id="welcome">Hello</h1>
+  </div>
+
+  <!--
+    JavaScript reads the query string from the URL.
+    Example: ?name=alice becomes "Hello alice".
+    If no name is sent, it falls back to "friend".
+  -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || 'friend';
+    document.getElementById('welcome').textContent = `Hello ${name}`;
+  </script>
+</body>
+</html>
