@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ParallelTaskQueDS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+edb307a1be6e42c3b6dbc0a0df818ed01995fa54")]
 [assembly: System.Reflection.AssemblyProductAttribute("ParallelTaskQueDS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ParallelTaskQueDS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

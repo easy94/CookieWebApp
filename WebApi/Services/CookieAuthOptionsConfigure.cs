@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
-
-namespace WebApi.Options;
+using WebApi.Options;
+namespace WebApi.Services;
 
 class CookieAuthOptionsConfigure : IConfigureOptions<CookieAuthenticationOptions>
 {

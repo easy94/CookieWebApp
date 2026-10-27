@@ -1,33 +1,34 @@
-# Plan and Thoughts
+# Readme
 
-Stuck at creating a database migration so i can test the first endpoint in "WebApi" to "QueProcessor"'s Background service, which is not done yet either.
+Wilkommen zu meinem kleinen Webapp-Projekt
 
-Solved Database migration issue. App does create "containers" and stop and start them simulated.
+Das Ziel dieser Anwendung ist es einen Nutzer, nachdem er sich registriert und eingeloggt hat, Zugriff auf vorgefertigte Containerimages zu erhalten (z.B. Gameserver), diese zu kontrollieren und für eigene Zwecke zu nutzen.
 
-Next read about docker minecraft images and how to start them properly through the API
+Um die Sicherheit zu gewährleisten, beschäftige ich mich in dieser Anwendung hauptsächlich mit Authentification and Authorization und dem sicheren Abarbeiten von Httprequests mithilfe eines Backgroundservices, der die Requests sequenziell abarbeitet.
 
-Next read about cookie authN and authZ for distinguishing between admin and user ops and relate containers to users
+Nachfolgend versuche ich den Verlauf einer einzelnen Anfrage zu erläutern, um sich so ein besseres machen zu können welche Gedanken man sich bei der sicheren Umsetzung des Projekts machen muss.
 
-Plan for Cookie auth: AddCookie(general options). -> CustomizedAuthorizationCookiePolicyhandler -> Custom
+## Wahl des Frameworks
 
-PwHasher: hash the password once, then only look up the hash instead of storing the actual password
-ClaimsPrincipal (special type): gets constructed on each request via ClaimsIdentity and HttpContext
+.NET bietet dank des riesigen, auf Enterprise Anwendungen ausgerichteten ASP.NET CORE Frameworks eine sichere sowie mühelose Umsetzung der oben genannten Funktionen. Die schwierigkeit besteht einzig darin die gigantische Oberfläche zu verstehen (was dank AI jedoch wesentlich leichter geworden ist)
 
-**Email Verification** let java script send post request from login page on Failed attempt due to Email not verified to check for IsEmailVerified
+Nachdem ein Request eingegangen ist, wird er von der Pipeline bearbeitet.
+Zuerst wird die Anfrage, mithilfe von ASP.NET, in ein HttpContext Objekt umgewandelt.
+In diesem Fall wird dieser Kontext von der Authentication Middleware untersucht, um festzustellen ob bereits ein Cookie vorhanden ist. Falls nicht, kann der User nur die Login Page besuchen.
+        Falls ein Cookie vorhanden ist, wird dies per default nur auf expiration time geprüft. (FALSCH, nachlesen in [sourcecode](https://source.dot.net/Microsoft.AspNetCore.Authentication.Cookies/R/bea8bd91cacbb03d.html))
+Nach der erfolgreichen Authorisierung wird der Request von der Authorization Middleware bearbeitet.
 
-## Readme
-
-### Dependency Injection mit IServiceProvider
+## Dependency Injection mit IServiceProvider
 
 s
 
-### Configuration in .NET CORE with IOptions and DI
+## Configuration in .NET CORE with IOptions and DI
 
 **Term definition**
 
 s
 
-### Understanding Auth in .NET CORE
+## Understanding Auth in .NET CORE
 
 **Term definition**
 

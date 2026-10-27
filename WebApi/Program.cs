@@ -8,6 +8,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Options;
+using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 
 
@@ -23,6 +25,7 @@ builder.Services.AddSqlite<UserContainerDb>(connectionstring);
 builder.Services.Configure<CookieAuthOptions>(builder.Configuration.GetSection(nameof(CookieAuthOptions)));
 builder.Services.ConfigureOptions<CookieAuthOptionsConfigure>();
 
+builder.Services.AddTransient<UserAuthService>();
 builder.Services.AddSingleton<PasswordHasher<User>>();
 builder.Services.AddHttpClient();
 
@@ -84,42 +87,12 @@ app.MapPost("/register", async (LoginDTO login, UserContainerDb db, PasswordHash
 
 }).AllowAnonymous();
 
-app.MapPost("/login", async (LoginDTO login, UserContainerDb db, ClaimsPrincipal cp, PasswordHasher<User> pwHasher, HttpContext httpContext, HttpClient httpClient) =>
+app.MapPost("/login", async (LoginDTO login, HttpContext httpContext, UserAuthService auth) =>
 {
-    var user = await db.Users.FirstOrDefaultAsync(p => p.Email == login.Email);
-    if (user is null) return Results.BadRequest();
-    
-    var pw=pwHasher.HashPassword(user, login.Password);
-    if(pwHasher.VerifyHashedPassword(user, user.PasswordHash, login.Password) != PasswordVerificationResult.Success) return Results.BadRequest();
-
-/*No implementation yet and unaware of any testing patterns
-
-    if(user.IsEmailVerified is false)
-    {
-        //send Email with verification code, Service needs to be injected for that..
-        return Results.BadRequest("Email not verified");
+    LoginResult loginResult = await auth.UserLoginAsync(login);
+    if (!loginResult.Success){
+        return Results.BadRequest($"User: {loginResult.User}: {loginResult.Error}");
     }
-*/
-
-    //after verifying pw,email create sessionid
-    var sid = Guid.NewGuid();
-
-    var claims = new List<Claim>
-    {
-        new(ClaimTypes.Email, user.Email),
-        new(ClaimTypes.Role, "user"),
-        new(ClaimTypes.Sid, sid.ToString()),
-        new("verified", "false")
-    };
-
-    AuthenticationProperties authproperties = new() { IssuedUtc = DateTime.UtcNow };
-    ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-    ClaimsPrincipal principal = new(identity);
-
-    await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authproperties);
-
-    user.Sid = sid;
-    await db.SaveChangesAsync();
 
     return Results.Redirect($"/home.html");
 
