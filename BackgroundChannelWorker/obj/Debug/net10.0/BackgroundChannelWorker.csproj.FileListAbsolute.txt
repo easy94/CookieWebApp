@@ -112,3 +112,5 @@
 /home/lucas/VSCProjects/MyMultiSolution/BackgroundChannelWorker/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll
 /home/lucas/VSCProjects/MyMultiSolution/BackgroundChannelWorker/bin/Debug/net10.0/WebApi.dll
 /home/lucas/VSCProjects/MyMultiSolution/BackgroundChannelWorker/bin/Debug/net10.0/WebApi.pdb
+/home/lucas/VSCProjects/MyMultiSolution/BackgroundChannelWorker/bin/Debug/net10.0/WebApi.staticwebassets.runtime.json
+/home/lucas/VSCProjects/MyMultiSolution/BackgroundChannelWorker/obj/Debug/net10.0/BackgroundChannelWorker.sourcelink.json

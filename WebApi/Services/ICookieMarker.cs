@@ -2,7 +2,7 @@ using System;
 
 namespace WebApi.Services;
 
-public class ICookieMarker
+public interface ICookieMarker
 {
 
 }

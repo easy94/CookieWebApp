@@ -10,3 +10,4 @@
 /home/lucas/VSCProjects/MyMultiSolution/libs/Models/obj/Debug/net10.0/refint/Models.dll
 /home/lucas/VSCProjects/MyMultiSolution/libs/Models/obj/Debug/net10.0/Models.pdb
 /home/lucas/VSCProjects/MyMultiSolution/libs/Models/obj/Debug/net10.0/ref/Models.dll
+/home/lucas/VSCProjects/MyMultiSolution/libs/Models/obj/Debug/net10.0/Models.sourcelink.json

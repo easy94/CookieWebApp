@@ -4,14 +4,9 @@ using WebApi.Services;
 using WebApi.Models;
 using Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Options;
-using System.Reflection.Metadata.Ecma335;
-using Microsoft.AspNetCore.Http.HttpResults;
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -20,27 +15,19 @@ builder.Services.AddSwaggerGen();
 var connectionstring = builder.Configuration.GetConnectionString("UserContainerDb") ?? "Data Source=../usercontainer.db";
 builder.Services.AddSqlite<UserContainerDb>(connectionstring);
 
-//add the appsettings.json (default in line15), then bind its section to CookieAuthOptions, then register it via ConfigureOptions 
-//so when AddCookie() gets called it gets resolved
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserAuthService<ICookieMarker>,UserAuthService>();
 builder.Services.Configure<CookieAuthOptions>(builder.Configuration.GetSection(nameof(CookieAuthOptions)));
 builder.Services.ConfigureOptions<CookieAuthOptionsConfigure>();
 
-builder.Services.AddTransient<UserAuthService>();
-builder.Services.AddSingleton<PasswordHasher<User>>();
 builder.Services.AddHttpClient();
+builder.Services.AddSingleton<PasswordHasher<User>>();
 
-// The actual cookie behavior is configured from the appsettings JSON via
-// CookieAuthOptions + CookieAuthOptionsConfigure, which are registered above.
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        // Intentionally left empty: values are applied by
-        // builder.Services.ConfigureOptions<CookieAuthOptionsConfigure>()
-        // and the bound CookieAuthOptions section.
-    });
+    .AddCookie();
 
-builder.Services.AddValidation();
+//builder.Services.AddValidation();
 
 builder.Services.AddAuthorization(c =>
 {
@@ -52,6 +39,7 @@ builder.Services.AddAuthorization(c =>
     .RequireRole("admin").Build());
 });
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -59,13 +47,14 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
     var sp = app.Services.CreateScope();
     TestSeedDataBase.SeedDatabase(sp.ServiceProvider);
 }
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+//Endpoints are resolved for each request scope
 
 app.MapPost("/register", async (LoginDTO login, UserContainerDb db, PasswordHasher<User> pwHasher) =>
 {
@@ -83,25 +72,26 @@ app.MapPost("/register", async (LoginDTO login, UserContainerDb db, PasswordHash
     var u = await db.Users.AddAsync(newuser);
     await db.SaveChangesAsync();
 
-    return Results.LocalRedirect("/", true, false);
+    return Results.LocalRedirect("/home.html", true, false);
 
 }).AllowAnonymous();
 
-app.MapPost("/login", async (LoginDTO login, HttpContext httpContext, UserAuthService auth) =>
+app.MapPost("/login", async (LoginDTO login, IUserAuthService<ICookieMarker> auth) =>
 {
     LoginResult loginResult = await auth.UserLoginAsync(login);
     if (!loginResult.Success){
         return Results.BadRequest($"User: {loginResult.User}: {loginResult.Error}");
     }
-
-    return Results.Redirect($"/home.html");
+    if(loginResult.User?.Role == "admin")
+        return Results.File($"admin.html", "text/html");
+    return Results.File($"home.html", "text/html");
 
 }).AllowAnonymous();
 
 app.MapPost("/logout", (HttpContext httpContext) =>
 {
     httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return Results.Redirect("/login.html");
+    return Results.File("login.html", "text/html");
 });
 
 app.MapPost("/container", async (string s, UserContainerDb db) =>
@@ -139,11 +129,9 @@ app.MapPost("/container/{i}/stop", async (int i, UserContainerDb db) =>
     return Results.Ok("Server is stopping...");
 });
 
-app.MapGet("/login.html", () => Results.File("/www.root/login.html")).AllowAnonymous();
-app.MapGet("/home.html", () => Results.File("/www.root/home.html"));
-app.MapGet("/adminspace.html", () => Results.File("/www.root/adminspace.html")).RequireAuthorization("AdminPolicy");
-
-app.UseStaticFiles();
+app.MapGet("/login.html", () => Results.File("login.html","text/html")).AllowAnonymous();
+app.MapGet("/home.html", () => Results.File("home.html","text/html")).AllowAnonymous();
+app.MapGet("/adminspace.html", () => Results.File("admin.html","text/html")).RequireAuthorization("AdminPolicy");
 app.UseHttpsRedirection();
 
 app.Run();

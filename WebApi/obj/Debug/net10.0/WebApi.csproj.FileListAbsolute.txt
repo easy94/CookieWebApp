@@ -152,5 +152,7 @@
 /home/lucas/VSCProjects/MyMultiSolution/WebApi/bin/Debug/net10.0/Models.pdb
 /home/lucas/VSCProjects/MyMultiSolution/WebApi/bin/Debug/net10.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 /home/lucas/VSCProjects/MyMultiSolution/WebApi/bin/Debug/net10.0/WebApi.staticwebassets.runtime.json
-/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/1q7lbceigz-{0}-1nknut7axw-1nknut7axw.gz
-/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/kd0p1g8zqk-{0}-aj3jxs296d-aj3jxs296d.gz
+/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/WebApi.sourcelink.json
+/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/j5q1fweuc0-{0}-5ka0cpqy5s-5ka0cpqy5s.gz
+/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/1q7lbceigz-{0}-elwsozig4z-elwsozig4z.gz
+/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/kd0p1g8zqk-{0}-72jienuzgy-72jienuzgy.gz

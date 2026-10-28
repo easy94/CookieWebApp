@@ -9,3 +9,4 @@
 /home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/refint/ParallelTaskQueDS.dll
 /home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.pdb
 /home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ref/ParallelTaskQueDS.dll
+/home/lucas/VSCProjects/MyMultiSolution/libs/ParallelTaskQueDS/obj/Debug/net10.0/ParallelTaskQueDS.sourcelink.json

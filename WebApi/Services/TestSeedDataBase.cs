@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 using Models;
 
 namespace WebApi.Services;
@@ -10,20 +11,25 @@ public static class TestSeedDataBase
         var db = sp.GetRequiredService<UserContainerDb>();
         var pwh = sp.GetRequiredService<Microsoft.AspNetCore.Identity.PasswordHasher<User>>();
 
-        var user = new User
-        {
-            Email = "lucas123@irgendwas.de",
-            PasswordHash = "123456",
-            Role = "admin"
-        };
-        user.PasswordHash = pwh.HashPassword(user, user.PasswordHash);
-        var userCheck = db.Users.FirstOrDefault(p => p.Email == user.Email);
+        db.Users.RemoveRange(db.Users);
 
-        if (userCheck is null)
+        var users = new List<User>([
+            new User{ Email = "lucas@meme.de", PasswordHash = "123456", Role = "admin"},
+            new User { Email = "nobody@meme.de", PasswordHash = "654321", Role = "user"}]
+        );
+
+        foreach (var u in users)
         {
-            var result = db.Users.Add(user);
-            System.Console.WriteLine(result);
-            db.SaveChanges();
+            u.PasswordHash = pwh.HashPassword(u, u.PasswordHash);
+            var userCheck = db.Users.FirstOrDefault(p => p.Email == u.Email);
+
+            if (userCheck is null)
+            {
+                var result = db.Users.Add(u);
+                System.Console.WriteLine(result);
+            }
         }
+
+        db.SaveChanges();
     }
 }

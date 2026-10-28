@@ -16,12 +16,9 @@ class CookieAuthOptionsConfigure : IConfigureOptions<CookieAuthenticationOptions
     {
         options.LoginPath = _config.LoginPath;
         options.LogoutPath = _config.LogoutPath;
-        options.AccessDeniedPath = new PathString(_config.AccessDeniedPath ?? "/");
+        options.AccessDeniedPath = _config.AccessDeniedPath;
         options.ExpireTimeSpan = _config.ExpireTimeSpan;
         options.SlidingExpiration = _config.SlidingExpiration;
-        options.Cookie.SecurePolicy = _config.CookieSecurePolicy
-            ? CookieSecurePolicy.Always
-            : CookieSecurePolicy.SameAsRequest;
         options.Cookie.HttpOnly = _config.CookieHttpOnly;
 
         /*not important right now

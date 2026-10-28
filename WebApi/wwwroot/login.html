@@ -4,135 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login</title>
-
-  <!--
-    CSS (styling) for the page.
-    This controls colors, spacing, layout, and the look of the form.
-  -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      display: grid;
-      place-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      width: min(420px, 90vw);
-    }
-
-    h1 {
-      margin-top: 0;
-      text-align: center;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-    }
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #d0d7de;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-
-    button {
-      width: 100%;
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 0.8rem 1rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #1d4ed8;
-    }
-
-    .error {
-      color: #b91c1c;
-      margin-top: 0.75rem;
-      min-height: 1.2em;
-    }
-  </style>
 </head>
 <body>
-  <!--
-    The page content starts here.
-    This card is the visible login box in the center of the screen.
-  -->
-  <div class="card">
-    <h1>Login</h1>
+  <h1>Login</h1>
 
-    <!--
-      This form collects the email and password from the user.
-      The browser requires both fields before submitting.
-    -->
-    <form id="loginForm">
-      <div>
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" required placeholder="you@example.com" />
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" required placeholder="••••••••" />
-      </div>
-      <button type="submit">Sign in</button>
-      <div id="error" class="error"></div>
-    </form>
-  </div>
+  <form method="post" action="/login">
+    <p>
+      <label for="Email">Email</label><br />
+      <input id="Email" name="Email" type="email" required />
+    </p>
+    <p>
+      <label for="Password">Password</label><br />
+      <input id="Password" name="Password" type="password" required />
+    </p>
+    <button type="submit">Sign in</button>
+  </form>
 
-  <!--
-    JavaScript logic:
-    - find the form and error box
-    - when the form is submitted, read the values
-    - send them to the backend endpoint /login
-    - if login works, redirect to the home page
-  -->
-  <script>
-    const form = document.getElementById('loginForm');
-    const errorBox = document.getElementById('error');
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      errorBox.textContent = '';
-
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      try {
-        const response = await fetch('/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password })
-        });
-
-        if (!response.ok) {
-          errorBox.textContent = 'Login failed. Check your credentials.';
-          return;
-        }
-
-        window.location.assign('/home.html');
-      } catch (err) {
-        errorBox.textContent = 'Could not reach the login endpoint.';
-      }
-    });
-  </script>
+  <h1>Register</h1>
+  <form method="post" action="/register">
+    <p>
+      <label for="Email">Email</label><br />
+      <input id="Email" name="Email" type="email" required />
+    </p>
+    <p>
+      <label for="Password">Password</label><br />
+      <input id="Password" name="Password" type="password" required />
+    </p>
+    <button type="submit">Sign Up</button>
+  </form>
 </body>
 </html>

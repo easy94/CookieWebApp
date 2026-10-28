@@ -1,9 +1,6 @@
-using System;
-using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -11,13 +8,13 @@ using WebApi.Models;
 
 namespace WebApi.Services;
 
-public class UserAuthService(HttpContext httpContext, UserContainerDb db, PasswordHasher<User> hasher):IUserAuthService<ICookieMarker>
+public class UserAuthService(UserContainerDb db, PasswordHasher<User> hasher, IHttpContextAccessor httpContext):IUserAuthService<ICookieMarker>
 {
     public async Task<LoginResult> UserLoginAsync(LoginDTO login)
     {
         var user = await db.Users.FirstOrDefaultAsync(p => p.Email == login.Email);
 
-        if(httpContext.User.Identity?.IsAuthenticated is true)
+        if(httpContext.HttpContext?.User.Identity?.IsAuthenticated is true)
             return new LoginResult (false, "already logged in", user);
 
         if (user is null) 
@@ -44,7 +41,11 @@ public class UserAuthService(HttpContext httpContext, UserContainerDb db, Passwo
         ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         ClaimsPrincipal principal = new(identity);
 
-        await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authproperties);
+        var currentHttpContext = httpContext.HttpContext;
+        if (currentHttpContext is null)
+            return new LoginResult(false, "http context unavailable", user);
+
+        await currentHttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authproperties);
 
         //user.Sid = sid;
         await db.SaveChangesAsync();
