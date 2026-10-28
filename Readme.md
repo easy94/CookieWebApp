@@ -4,15 +4,15 @@ Wilkommen zu meinem kleinen Webapp-Projekt
 
 Das Ziel dieser Anwendung ist es einen Nutzer, nachdem er sich registriert und eingeloggt hat, Zugriff auf vorgefertigte Containerimages zu erhalten (z.B. Gameserver), diese zu kontrollieren und für eigene Zwecke zu nutzen.
 
-Um die Sicherheit zu gewährleisten, beschäftige ich mich in dieser Anwendung hauptsächlich mit Authentification and Authorization und dem sicheren Abarbeiten von Httprequests mithilfe eines Backgroundservices, der die Requests sequenziell abarbeitet.
+Um die Sicherheit zu gewährleisten, beschäftige ich mich in dieser Anwendung hauptsächlich mit Authentification and Authorization und dem sicheren Abarbeiten von Httprequests mithilfe eines Backgroundservices, der die Requests sequenziell processt.
 
-Nachfolgend versuche ich den Verlauf einer einzelnen Anfrage zu erläutern, um sich so ein besseres machen zu können welche Gedanken man sich bei der sicheren Umsetzung des Projekts machen muss.
+Nachfolgend versuche ich den Verlauf einer einzelnen Anfrage zu erläutern, um sich so ein besseres Bild machen zu können welche Gedanken man sich bei der Umsetzung des Projekts machen muss.
 
 Nachdem ein Request eingegangen ist, wird er von der Pipeline bearbeitet.
 Zuerst wird die Anfrage, mithilfe von ASP.NET, in ein HttpContext Objekt umgewandelt.
 In diesem Fall wird dieser Kontext von der Authentication Middleware untersucht, um festzustellen ob bereits ein Cookie vorhanden ist.
 Die default implementation des CookieAuthenticationHandler's returnt basierend auf den Http Kontext entweder Fail/Success und gibt an, ob der Cookie erneuert werden muss.
-Falls ein Cookie vorhanden ist, wird dies abhängig vom CookieScheme auf bestimmte Eigenschaften geprüft. (FALSCH, nachlesen in [sourcecode](https://source.dot.net/Microsoft.AspNetCore.Authentication.Cookies/R/bea8bd91cacbb03d.html))
+Falls ein Cookie vorhanden ist, wird dies abhängig vom CookieScheme auf bestimmte Eigenschaften geprüft.
 Nach der erfolgreichen Authorisierung wird der Request von der Authorization Middleware bearbeitet.
 
 ClaimsPrincipal = All the Identities of the "User"
@@ -27,9 +27,31 @@ Der CookieAuthHandler prüft folgendes:
 - expired? -> return Expired
 - Success
 
-Bei Success wird ClaimsPrincipal constructet dann next Middleware call, bei allem anderen Result direkt weiter 
+Bei Success wird ClaimsPrincipal constructet dann next Middleware call, bei allem anderen Result direkt weiter.
 
-Der Flow ist: AuthNmiddleware -> AuthService -> AuthHandler -> AuthZmiddleware -> AuthZService -> PolicyEvaluator(endpoint policies) -> AuthHandler ->
+Der Flow ist: AuthNmiddleware -> (OnValidateEvent) -> AuthNService -> AuthNHandler -> AuthZmiddleware -> AuthZService -> PolicyEvaluator(endpoint policies) -> AuthHandler -> PolicyEvaluator ...
+
+## Struktur des Projetks
+
+WebApi Endpoints und Server liegen im WebApi Projekt.
+Im Hintergrund läuft der Backgroundservice im BackgroundChannelWorker/ Ordner.
+Da beide Programme separat voneinander laufen, benötige ich eine Class library
+dazwischen um Class Models oder sonstiges zu teilen.
+
+Die WebApp "dispatched" Resourcenintensive Arbeit in eine Que.
+Diese Que wird vom HintergrundService nacheinander abgearbeitet.
+Das Ergebnis kann dan per Javascript im Browser "gepollt" werden,
+also im Intervall einen Request senden ob Prozess erfolgreich beendet wure. (einfachste variante)
+
+Derzeit bearbeitet die Que allerdings nur Pseudo-Prozesse.
+
+## Mögliche Erweiterungen
+
+- Multifaktor Authentication für mehr Sicherheit
+- Docker Container Hosten für den User (z.B. Gameserver) implementieren
+- Configuration von Containern erlauben via Interfaces
+- Admin Endpoints einrichten zum manuellem administrieren von User Containern
+- Email Verifikation bei der Anmeldung
 
 ## Dependency Injection mit IServiceProvider
 

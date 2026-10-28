@@ -8,7 +8,7 @@
 <body>
   <h1>Login</h1>
 
-  <form method="post" action="/login">
+  <form method="post" enctype="application/x-www-form-urlencoded" action="/login">
     <p>
       <label for="Email">Email</label><br />
       <input id="Email" name="Email" type="email" required />
@@ -21,7 +21,7 @@
   </form>
 
   <h1>Register</h1>
-  <form method="post" action="/register">
+  <form method="post" enctype="application/x-www-form-urlencoded" action="/register">
     <p>
       <label for="Email">Email</label><br />
       <input id="Email" name="Email" type="email" required />

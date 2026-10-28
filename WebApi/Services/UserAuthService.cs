@@ -8,7 +8,7 @@ using WebApi.Models;
 
 namespace WebApi.Services;
 
-public class UserAuthService(UserContainerDb db, PasswordHasher<User> hasher, IHttpContextAccessor httpContext):IUserAuthService<ICookieMarker>
+public class UserAuthService(UserContainerDb db, PasswordHasher<User> hasher, IHttpContextAccessor httpContext, ILogger<UserAuthService> logger):IUserAuthService<ICookieMarker>
 {
     public async Task<LoginResult> UserLoginAsync(LoginDTO login)
     {
@@ -22,7 +22,7 @@ public class UserAuthService(UserContainerDb db, PasswordHasher<User> hasher, IH
 
         var pw = hasher.HashPassword(user, login.Password);
 
-        if(hasher.VerifyHashedPassword(user, user.PasswordHash, login.Password) == PasswordVerificationResult.Success)       
+        if (hasher.VerifyHashedPassword(user, user.PasswordHash, login.Password) != PasswordVerificationResult.Success)
             return new LoginResult(false, "bad password", user);
 
         //after verifying pw,email create sessionid for authentication OnValidate hook 
@@ -32,7 +32,7 @@ public class UserAuthService(UserContainerDb db, PasswordHasher<User> hasher, IH
         var claims = new List<Claim>
         {
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, "user"),
+            new(ClaimTypes.Role, user.Role),
             //new(ClaimTypes.Sid, sid.ToString()),
             new("verified", "false")
         };
@@ -49,7 +49,8 @@ public class UserAuthService(UserContainerDb db, PasswordHasher<User> hasher, IH
 
         //user.Sid = sid;
         await db.SaveChangesAsync();
-
+        httpContext.HttpContext?.User.Claims.ToList().ForEach(
+            p => logger.Log(LogLevel.Information, p.ValueType.ToString() + " " + p.Value.ToString()));
         return new LoginResult(true, null, user);
     }
 }

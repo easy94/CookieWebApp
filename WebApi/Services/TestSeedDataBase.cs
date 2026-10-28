@@ -18,16 +18,11 @@ public static class TestSeedDataBase
             new User { Email = "nobody@meme.de", PasswordHash = "654321", Role = "user"}]
         );
 
+        
         foreach (var u in users)
         {
             u.PasswordHash = pwh.HashPassword(u, u.PasswordHash);
-            var userCheck = db.Users.FirstOrDefault(p => p.Email == u.Email);
-
-            if (userCheck is null)
-            {
-                var result = db.Users.Add(u);
-                System.Console.WriteLine(result);
-            }
+            db.Users.Add(u);
         }
 
         db.SaveChanges();

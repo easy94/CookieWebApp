@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BackgroundChannelWorker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6325917cc547b14d41af72ad157870473067ee01")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0de15a2588821d02d415c9b8292bf516fcb14cfc")]
 [assembly: System.Reflection.AssemblyProductAttribute("BackgroundChannelWorker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BackgroundChannelWorker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

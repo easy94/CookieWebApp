@@ -5,8 +5,11 @@ using WebApi.Models;
 using Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApi.Options;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -14,31 +17,51 @@ builder.Services.AddSwaggerGen();
 
 var connectionstring = builder.Configuration.GetConnectionString("UserContainerDb") ?? "Data Source=../usercontainer.db";
 builder.Services.AddSqlite<UserContainerDb>(connectionstring);
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUserAuthService<ICookieMarker>,UserAuthService>();
 builder.Services.Configure<CookieAuthOptions>(builder.Configuration.GetSection(nameof(CookieAuthOptions)));
 builder.Services.ConfigureOptions<CookieAuthOptionsConfigure>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserAuthService<ICookieMarker>, UserAuthService>();
+builder.Services.AddLogging();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<PasswordHasher<User>>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie();
+    .AddCookie(p => {
 
-//builder.Services.AddValidation();
+        var options = builder.Configuration.GetRequiredSection(nameof(CookieAuthOptions))
+                    .Get<CookieAuthOptions>() ?? throw new OptionsValidationException(nameof(CookieAuthOptions), typeof(CookieAuthenticationOptions), ["CookieAuthenticationOptions configuration null Reference"]);
+        p.AccessDeniedPath = options.AccessDeniedPath;
+        p.LoginPath = options.LoginPath;
+        p.LogoutPath = options.LogoutPath;
+        p.ExpireTimeSpan = options.ExpireTimeSpan;
+        p.Cookie.HttpOnly = true;
+        p.SlidingExpiration = true;
+        p.Events.OnValidatePrincipal = async func =>{
 
-builder.Services.AddAuthorization(c =>
-{
-    c.FallbackPolicy = new AuthorizationPolicyBuilder()
-    .RequireAuthenticatedUser().Build();
+        var db = func.HttpContext.RequestServices.GetRequiredService<UserContainerDb>();
+            var user = await db.Users.FirstOrDefaultAsync(p => p.Email == func.HttpContext.User.FindFirstValue(ClaimTypes.Email));
+            if (func.Principal?.FindFirstValue(ClaimTypes.Sid) != user?.Sid.ToString()){
+                func.RejectPrincipal();
+                func.ShouldRenew = true;
+            }
+            return;
+        };
+    });
 
-    c.AddPolicy("AdminPolicy", p =>
-    p.RequireAuthenticatedUser()
-    .RequireRole("admin").Build());
-});
+builder.Services
+    .AddAuthorization(options =>
+    {
+        options.FallbackPolicy = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme)
+            .RequireAuthenticatedUser()
+            .Build();
 
+        options.AddPolicy("AdminPolicy", new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme)
+            .RequireAuthenticatedUser()
+            .RequireRole("admin")
+            .Build());
+    });
 
 var app = builder.Build();
 
@@ -56,7 +79,7 @@ app.UseAuthorization();
 
 //Endpoints are resolved for each request scope
 
-app.MapPost("/register", async (LoginDTO login, UserContainerDb db, PasswordHasher<User> pwHasher) =>
+app.MapPost("/register", async ([FromForm] LoginDTO login, UserContainerDb db, PasswordHasher<User> pwHasher) =>
 {
     //check if supplied email exists already
     if (await db.Users.AnyAsync(u => u.Email == login.Email)) return Results.BadRequest("User with this email already exists");
@@ -68,31 +91,40 @@ app.MapPost("/register", async (LoginDTO login, UserContainerDb db, PasswordHash
     };
     newuser.PasswordHash = pwHasher.HashPassword(newuser, login.Password);
 
-    //register him
     var u = await db.Users.AddAsync(newuser);
     await db.SaveChangesAsync();
 
     return Results.LocalRedirect("/home.html", true, false);
 
-}).AllowAnonymous();
+}).AllowAnonymous().DisableAntiforgery();
 
-app.MapPost("/login", async (LoginDTO login, IUserAuthService<ICookieMarker> auth) =>
+app.MapPost("/login", async ([FromForm] LoginDTO login, IUserAuthService<ICookieMarker> auth, ILogger<User> logger) =>
 {
     LoginResult loginResult = await auth.UserLoginAsync(login);
-    if (!loginResult.Success){
+    if (!loginResult.Success)
+    {
         return Results.BadRequest($"User: {loginResult.User}: {loginResult.Error}");
     }
-    if(loginResult.User?.Role == "admin")
-        return Results.File($"admin.html", "text/html");
-    return Results.File($"home.html", "text/html");
+    if (loginResult.User?.Role == "admin")
+    {
+        logger.Log(LogLevel.Information, loginResult.User.Email + " " + "admin authorized");
+        return Results.Redirect("/adminsz");
+    }
 
-}).AllowAnonymous();
+    logger.Log(LogLevel.Information, loginResult.User?.Email + " " + "user authorized");
+    return Results.Redirect($"/homez");
 
-app.MapPost("/logout", (HttpContext httpContext) =>
+}).AllowAnonymous().DisableAntiforgery();
+
+app.MapPost("/logout", async (HttpContext httpContext, UserContainerDb db, ILogger<User> logger) =>
 {
-    httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    httpContext.User.Identities.ToList().ForEach(p=> logger.Log(LogLevel.Information, p.IsAuthenticated.ToString()));
+    var user = await db.Users.FirstOrDefaultAsync(p => p.Email == httpContext.User.FindFirstValue(ClaimTypes.Email));
+    user!.Sid = Guid.NewGuid();
+    await db.SaveChangesAsync();
     return Results.File("login.html", "text/html");
-});
+}).DisableAntiforgery();
 
 app.MapPost("/container", async (string s, UserContainerDb db) =>
 {
@@ -129,9 +161,41 @@ app.MapPost("/container/{i}/stop", async (int i, UserContainerDb db) =>
     return Results.Ok("Server is stopping...");
 });
 
-app.MapGet("/login.html", () => Results.File("login.html","text/html")).AllowAnonymous();
-app.MapGet("/home.html", () => Results.File("home.html","text/html")).AllowAnonymous();
-app.MapGet("/adminspace.html", () => Results.File("admin.html","text/html")).RequireAuthorization("AdminPolicy");
-app.UseHttpsRedirection();
+app.MapGet("/", () => Results.Redirect("/loginz")).AllowAnonymous();
+app.MapGet("/loginz", () => Results.File("login.html", "text/html")).AllowAnonymous();
+app.MapGet("/homez", () => Results.File("home.html", "text/html"));
+app.MapGet("/adminsz", () => Results.File("admin.html", "text/html")).RequireAuthorization("AdminPolicy");
+app.MapGet("/forbidden", () => Results.File("forbidden.html", "text/html")).AllowAnonymous();
 
+app.MapGet("/debugbind", (IOptions<CookieAuthOptions> options) =>
+{
+    var c = options.Value;
+
+    return Results.Json(new
+    {
+        LoginPath = c.LoginPath,
+        LogoutPath = c.LogoutPath,
+        AccessDeniedPath = c.AccessDeniedPath,
+        ExpireTimeSpan = c.ExpireTimeSpan,
+        SlidingExpiration = c.SlidingExpiration,
+        CookieHttpOnly = c.CookieHttpOnly
+    });
+});
+
+app.MapGet("/debugfinal", (IOptions<CookieAuthenticationOptions> options) =>
+{
+    var c = options.Value;
+
+    return Results.Json(new
+    {
+        LoginPath = c.LoginPath,
+        LogoutPath = c.LogoutPath,
+        AccessDeniedPath = c.AccessDeniedPath,
+        ExpireTimeSpan = c.ExpireTimeSpan,
+        SlidingExpiration = c.SlidingExpiration,
+        HttpOnly = c.Cookie.HttpOnly
+    });
+});
+
+app.UseHttpsRedirection();
 app.Run();

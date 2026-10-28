@@ -155,4 +155,5 @@
 /home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/WebApi.sourcelink.json
 /home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/j5q1fweuc0-{0}-5ka0cpqy5s-5ka0cpqy5s.gz
 /home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/1q7lbceigz-{0}-elwsozig4z-elwsozig4z.gz
-/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/kd0p1g8zqk-{0}-72jienuzgy-72jienuzgy.gz
+/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/kd0p1g8zqk-{0}-3s2l8225j6-3s2l8225j6.gz
+/home/lucas/VSCProjects/MyMultiSolution/WebApi/obj/Debug/net10.0/compressed/n8v8z4ajf3-{0}-zkxwvk43gq-zkxwvk43gq.gz

@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using WebApi.Options;
 namespace WebApi.Services;
@@ -21,16 +23,16 @@ class CookieAuthOptionsConfigure : IConfigureOptions<CookieAuthenticationOptions
         options.SlidingExpiration = _config.SlidingExpiration;
         options.Cookie.HttpOnly = _config.CookieHttpOnly;
 
-        /*not important right now
         options.Events.OnValidatePrincipal = async func =>
         {
             var db = func.HttpContext.RequestServices.GetRequiredService<UserContainerDb>();
-            db.Users.Find()
-            func.Principal.HasClaim()
-            func.RejectPrincipal();
-            
+            var user = await db.Users.FirstOrDefaultAsync(p => p.Email == func.HttpContext.User.FindFirstValue(ClaimTypes.Email));
+            if (func.Principal?.FindFirstValue(ClaimTypes.Sid) != user?.Sid.ToString()){
+                func.RejectPrincipal();
+                func.ShouldRenew = true;
+            }
             return;
         };
-        */
+        
     }
 }
